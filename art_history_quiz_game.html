@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>서양 미술사 퀴즈 🎨</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Georgia',serif;background:#F7F3E8;color:#1a1208;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem}
+
+#game{max-width:680px;width:100%;margin:0 auto}
+
+.screen{display:none}
+.screen.active{display:block}
+
+/* START */
+#start-screen{text-align:center;padding:1.5rem 1rem}
+.title-art{font-size:2rem;font-weight:700;color:#1a1208;letter-spacing:-0.5px;line-height:1.2;margin-bottom:0.25rem}
+.title-sub{font-size:1rem;color:#8B7355;margin-bottom:1.5rem}
+
+.era-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:1.5rem}
+.era-card{background:#fff;border:1px solid #d6cfc0;border-radius:10px;padding:0.6rem 0.3rem;text-align:center}
+.era-icon{font-size:1.4rem;display:block;margin-bottom:4px}
+.era-name{font-size:10px;color:#8B7355;line-height:1.3}
+
+.btn-start{background:#1a1208;color:#F7F3E8;border:none;border-radius:12px;padding:12px 36px;font-size:1rem;font-family:inherit;cursor:pointer;font-weight:500;transition:opacity 0.15s}
+.btn-start:hover{opacity:0.8}
+
+/* QUIZ */
+#quiz-screen{padding:1rem}
+
+.progress-bar-wrap{background:#e8e2d6;border-radius:99px;height:6px;margin-bottom:1rem;overflow:hidden}
+.progress-bar-fill{height:100%;background:#1a1208;border-radius:99px;transition:width 0.4s}
+
+.q-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.q-era-badge{font-size:11px;padding:4px 10px;border-radius:99px;background:#fff;color:#8B7355;border:1px solid #d6cfc0;font-family:sans-serif}
+.q-counter{font-size:13px;color:#8B7355;font-family:sans-serif}
+.q-score-live{font-size:13px;color:#8B7355;font-family:sans-serif;font-weight:500}
+
+.q-card{background:#fff;border:1px solid #d6cfc0;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.q-type{font-size:11px;color:#a89880;margin-bottom:8px;font-family:sans-serif;letter-spacing:0.5px;text-transform:uppercase}
+.q-text{font-size:1rem;color:#1a1208;line-height:1.6}
+
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.choice-btn{background:#fff;border:1px solid #c8c0b0;border-radius:10px;padding:12px;font-size:0.875rem;font-family:'Georgia',serif;cursor:pointer;text-align:left;color:#1a1208;transition:all 0.15s;line-height:1.4}
+.choice-btn:hover:not(:disabled){background:#f5f0e8;border-color:#a89880}
+.choice-btn.correct{background:#EAF3DE;border-color:#639922;color:#27500A}
+.choice-btn.wrong{background:#FCEBEB;border-color:#A32D2D;color:#501313}
+.choice-btn.reveal-correct{background:#EAF3DE;border-color:#639922;color:#27500A}
+
+.feedback-box{background:#f5f0e8;border-radius:10px;padding:1rem;margin-bottom:1rem;display:none;border-left:3px solid #c8c0b0}
+.feedback-box.show{display:block}
+.feedback-box.ok{border-left-color:#639922}
+.feedback-box.bad{border-left-color:#A32D2D}
+.feedback-title{font-size:13px;font-weight:500;margin-bottom:4px;font-family:sans-serif;color:#1a1208}
+.feedback-text{font-size:13px;color:#5a4e3a;line-height:1.5;font-family:sans-serif}
+
+.btn-next{width:100%;background:#1a1208;color:#F7F3E8;border:none;border-radius:10px;padding:12px;font-size:0.9rem;font-family:inherit;cursor:pointer;font-weight:500;display:none}
+.btn-next.show{display:block}
+.btn-next:hover{opacity:0.8}
+
+/* RESULT */
+#result-screen{padding:1rem;text-align:center}
+.result-score-big{font-size:3.5rem;font-weight:700;color:#1a1208;line-height:1}
+.result-label{font-size:1rem;color:#8B7355;margin:8px 0 1.5rem;font-family:sans-serif}
+.result-message{font-size:1.1rem;color:#1a1208;margin-bottom:1.5rem;line-height:1.6}
+
+.era-results{display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem;text-align:left}
+.era-result-row{display:flex;align-items:center;gap:10px}
+.era-result-name{font-size:13px;color:#8B7355;width:70px;flex-shrink:0;font-family:sans-serif}
+.era-result-bar-wrap{flex:1;background:#e8e2d6;border-radius:99px;height:8px;overflow:hidden}
+.era-result-bar{height:100%;border-radius:99px;background:#1a1208;transition:width 0.8s}
+.era-result-frac{font-size:12px;color:#8B7355;width:28px;text-align:right;font-family:sans-serif}
+
+.btn-retry{background:transparent;border:1px solid #c8c0b0;border-radius:12px;padding:10px 28px;font-size:0.9rem;font-family:inherit;cursor:pointer;color:#1a1208;transition:all 0.15s;margin-right:8px}
+.btn-retry:hover{background:#e8e2d6}
+.btn-done{background:#1a1208;color:#F7F3E8;border:none;border-radius:12px;padding:10px 28px;font-size:0.9rem;font-family:inherit;cursor:pointer;transition:opacity 0.15s}
+.btn-done:hover{opacity:0.8}
+
+.combo-badge{display:inline-block;background:#e8e2d6;border:1px solid #c8c0b0;border-radius:99px;padding:3px 10px;font-size:11px;color:#8B7355;font-family:sans-serif;margin-left:8px}
+.combo-badge.hot{background:#FAEEDA;border-color:#BA7517;color:#633806}
+
+@media(max-width:480px){
+  .era-cards{grid-template-columns:repeat(5,1fr)}
+  .choices{grid-template-columns:1fr}
+  .title-art{font-size:1.5rem}
+}
+</style>
+</head>
+<body>
+<div id="game">
+
+<!-- START -->
+<div id="start-screen" class="screen active">
+  <p class="title-art">🎨 서양 미술사 퀴즈</p>
+  <p class="title-sub">르네상스부터 인상주의까지 — 명화 속 세계를 탐험해요</p>
+  <div class="era-cards">
+    <div class="era-card"><span class="era-icon">🏛️</span><span class="era-name">르네상스</span></div>
+    <div class="era-card"><span class="era-icon">🌩️</span><span class="era-name">바로크</span></div>
+    <div class="era-card"><span class="era-icon">🦋</span><span class="era-name">로코코</span></div>
+    <div class="era-card"><span class="era-icon">🌾</span><span class="era-name">사실주의</span></div>
+    <div class="era-card"><span class="era-icon">🌅</span><span class="era-name">인상주의</span></div>
+  </div>
+  <p style="font-size:13px;color:#8B7355;margin-bottom:1rem;font-family:sans-serif">총 20문제 · 사지선다 · 시간 제한 없음</p>
+  <button class="btn-start" onclick="startGame()">퀴즈 시작하기</button>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-screen" class="screen">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div class="progress-bar-wrap" style="flex:1;margin-right:12px">
+      <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+    </div>
+    <span class="q-score-live" id="score-live">0점</span>
+  </div>
+  <div class="q-header">
+    <span class="q-era-badge" id="era-badge">르네상스</span>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="combo-badge" id="combo-badge" style="display:none"></span>
+      <span class="q-counter" id="q-counter">1 / 20</span>
+    </div>
+  </div>
+  <div class="q-card">
+    <div class="q-type" id="q-type">사지선다형</div>
+    <div class="q-text" id="q-text">문제가 여기에 표시됩니다.</div>
+  </div>
+  <div class="choices" id="choices"></div>
+  <div class="feedback-box" id="feedback-box">
+    <div class="feedback-title" id="feedback-title"></div>
+    <div class="feedback-text" id="feedback-text"></div>
+  </div>
+  <button class="btn-next" id="btn-next" onclick="nextQuestion()">다음 문제 →</button>
+</div>
+
+<!-- RESULT -->
+<div id="result-screen" class="screen">
+  <div style="font-size:2.5rem;margin-bottom:8px" id="result-emoji">🎨</div>
+  <div class="result-score-big" id="result-score"></div>
+  <div class="result-label">20문제 중 <span id="result-correct"></span>문제 정답</div>
+  <div class="result-message" id="result-message"></div>
+  <div class="era-results" id="era-results"></div>
+  <div>
+    <button class="btn-retry" onclick="startGame()">다시 도전</button>
+    <button class="btn-done" onclick="alert('수고했어요! 선생님께 결과를 보고하세요 😊')">완료</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  {era:"르네상스",q:"레오나르도 다빈치가 그린 세계에서 가장 유명한 초상화는?",choices:["모나리자","아테네 학당","다비드","최후의 만찬"],ans:0,exp:"모나리자(La Gioconda)는 레오나르도 다빈치가 1503~1519년경 그린 작품으로, 루브르 박물관에 소장되어 있습니다. 신비로운 미소로 유명합니다."},
+  {era:"르네상스",q:"미켈란젤로가 시스티나 성당 천장에 그린 대표 장면은?",choices:["아담의 창조","최후의 심판","수태고지","피에타"],ans:0,exp:"'아담의 창조'는 미켈란젤로가 1508~1512년 시스티나 성당 천장에 그린 프레스코화입니다. 신의 손가락과 아담의 손가락이 맞닿을 듯한 장면이 유명합니다."},
+  {era:"르네상스",q:"라파엘로의 대표작 '아테네 학당'에 등장하지 않는 인물은?",choices:["나폴레옹","플라톤","아리스토텔레스","소크라테스"],ans:0,exp:"'아테네 학당'에는 플라톤, 아리스토텔레스 등 고대 그리스 철학자들이 등장합니다. 나폴레옹은 르네상스 이후 시대 인물입니다."},
+  {era:"르네상스",q:"르네상스 미술의 핵심 특징으로 올바른 것은?",choices:["원근법과 인체 해부학적 표현","어두운 명암 대비","화려한 장식과 비대칭 구성","빠른 붓터치로 빛을 포착"],ans:0,exp:"르네상스 미술은 원근법(투시도법)과 인체를 과학적으로 연구한 해부학적 표현이 핵심입니다. 인간 중심의 세계관을 표현했습니다."},
+  {era:"르네상스",q:"르네상스가 처음 시작된 나라는?",choices:["이탈리아","프랑스","독일","네덜란드"],ans:0,exp:"르네상스(Rinascimento)는 14~16세기 이탈리아 피렌체에서 시작되었습니다. '메디치 가문'의 후원 아래 예술과 문화가 꽃피었습니다."},
+  {era:"바로크",q:"바로크 미술의 대표적인 특징은?",choices:["강렬한 명암 대비(키아로스쿠로)","단순하고 절제된 표현","파스텔 톤의 밝은 색채","평면적이고 장식적인 표현"],ans:0,exp:"바로크 미술은 '키아로스쿠로(Chiaroscuro)'라 불리는 극적인 명암 대비가 특징입니다. 빛과 어둠의 강렬한 대비로 극적인 감동을 전달합니다."},
+  {era:"바로크",q:"'빛의 화가'라 불리며 극적인 명암 대비를 사용한 바로크 화가는?",choices:["카라바조","루벤스","모네","렘브란트"],ans:0,exp:"카라바조(Caravaggio, 1571~1610)는 강렬한 명암 대비로 '빛의 혁명'을 일으킨 바로크의 대표 화가입니다. 그의 방식을 카라바지즘이라 부릅니다."},
+  {era:"바로크",q:"바로크 미술이 발전한 시기는?",choices:["17세기","15세기","19세기","20세기"],ans:0,exp:"바로크 미술은 주로 17세기에 유럽 전역에서 발전했습니다. 가톨릭교회의 반종교개혁 운동과 관련이 깊으며 감동과 웅장함을 추구했습니다."},
+  {era:"바로크",q:"'진주 귀걸이를 한 소녀'를 그린 화가는?",choices:["요하네스 페르메이르","렘브란트","카라바조","루벤스"],ans:0,exp:"'진주 귀걸이를 한 소녀'(1665년경)는 네덜란드 바로크 화가 요하네스 페르메이르(Vermeer)의 작품입니다. '북유럽의 모나리자'라고도 불립니다."},
+  {era:"바로크",q:"바로크 미술의 특징으로 옳지 않은 것은?",choices:["차분하고 이성적인 분위기","역동적인 구성","감정적이고 극적인 표현","화려한 세부 묘사"],ans:0,exp:"바로크 미술은 극적이고 감정적이며 역동적인 것이 특징입니다. '차분하고 이성적인 분위기'는 바로크보다 후기 신고전주의에 가깝습니다."},
+  {era:"로코코",q:"로코코 미술의 특징으로 가장 알맞은 것은?",choices:["화려하고 우아한 귀족 문화의 표현","어두운 종교적 주제","강렬한 빛과 어둠의 대비","자연과 노동하는 민중의 묘사"],ans:0,exp:"로코코 미술은 18세기 프랑스 귀족 문화를 반영하여 화려하고 우아한 파스텔 색조, 곡선미, 사랑과 유희의 주제를 즐겨 다루었습니다."},
+  {era:"로코코",q:"로코코 미술을 대표하는 프랑스 화가는?",choices:["장-오노레 프라고나르","레오나르도 다빈치","귀스타브 쿠르베","에두아르 마네"],ans:0,exp:"장-오노레 프라고나르(Jean-Honoré Fragonard, 1732~1806)는 '그네'로 유명한 로코코의 대표 화가입니다. 귀족의 유희적 생활을 우아하게 표현했습니다."},
+  {era:"로코코",q:"'그네(The Swing)'라는 그림은 어느 시대 작품인가?",choices:["로코코","바로크","인상주의","사실주의"],ans:0,exp:"프라고나르의 '그네'(1767)는 로코코 시대의 대표작입니다. 귀족 여인이 그네를 타는 유쾌하고 우아한 장면으로 로코코의 특징을 잘 보여줍니다."},
+  {era:"로코코",q:"로코코 미술이 유행한 나라는?",choices:["프랑스","이탈리아","영국","스페인"],ans:0,exp:"로코코 미술은 18세기 프랑스 베르사유 궁전을 중심으로 유행했으며, 이후 유럽 전역으로 퍼졌습니다. 프랑스 절대왕정 시대의 문화를 반영합니다."},
+  {era:"로코코",q:"로코코 미술에서 즐겨 사용한 색은?",choices:["파스텔 톤의 밝고 연한 색","검정과 갈색의 어두운 색","원색적이고 강렬한 색","흑백 위주의 색"],ans:0,exp:"로코코 미술은 분홍, 하늘색, 연두 등 파스텔 톤의 밝고 우아한 색채를 즐겨 사용했습니다. 이는 귀족의 화려하고 가볍고 유희적인 취향을 반영합니다."},
+  {era:"사실주의",q:"사실주의 미술에서 주로 다룬 주제는?",choices:["농민과 노동자 등 일상적 현실","신화와 종교적 이상","귀족의 우아한 놀이문화","역동적인 영웅 이야기"],ans:0,exp:"사실주의(Realism)는 19세기 이상화나 미화 없이 농민, 노동자 등 현실 사회의 모습을 있는 그대로 묘사했습니다. 쿠르베가 대표적입니다."},
+  {era:"사실주의",q:"'돌 깨는 사람들'을 그린 사실주의 화가는?",choices:["귀스타브 쿠르베","장 프랑수아 밀레","에두아르 마네","오노레 도미에"],ans:0,exp:"귀스타브 쿠르베(Gustave Courbet, 1819~1877)는 '돌 깨는 사람들'(1849)로 사실주의를 선언했습니다. 노동자들의 고된 삶을 거리낌 없이 묘사했습니다."},
+  {era:"사실주의",q:"밀레의 '이삭 줍는 여인들'에 등장하는 것은?",choices:["추수 후 이삭을 줍는 농촌 여인들","왕궁에서 춤추는 귀족들","전쟁터의 병사들","항구의 어부들"],ans:0,exp:"장 프랑수아 밀레(Jean-François Millet)의 '이삭 줍는 여인들'(1857)은 추수 후 남은 이삭을 줍는 세 명의 농촌 여인을 묘사한 사실주의 걸작입니다."},
+  {era:"인상주의",q:"인상주의 미술의 핵심 특징은?",choices:["야외에서 빛의 변화를 빠른 붓터치로 포착","사진처럼 세밀한 묘사","신화와 역사 주제를 웅장하게 표현","어두운 명암 대비로 극적 효과 연출"],ans:0,exp:"인상주의는 야외(앙플레르)에서 자연광의 순간적인 변화를 짧고 빠른 붓터치로 포착하는 것이 특징입니다. 모네, 르누아르, 드가 등이 대표적입니다."},
+  {era:"인상주의",q:"'인상주의'라는 이름의 유래가 된 모네의 작품은?",choices:["인상, 해돋이","수련","루앙 대성당","건초더미"],ans:0,exp:"클로드 모네의 '인상, 해돋이'(Impression, Soleil Levant, 1872)에서 '인상주의'라는 이름이 유래했습니다. 비평가가 조롱하며 사용한 말이 정식 명칭이 되었습니다."},
+  {era:"인상주의",q:"인상주의 화가가 아닌 사람은?",choices:["귀스타브 쿠르베","클로드 모네","피에르 오귀스트 르누아르","에드가 드가"],ans:0,exp:"귀스타브 쿠르베는 인상주의가 아닌 사실주의 화가입니다. 모네, 르누아르, 드가는 인상주의의 대표 화가들입니다."},
+];
+
+let currentQ=0,score=0,answered=false,combo=0;
+let eraScores={"르네상스":{c:0,t:0},"바로크":{c:0,t:0},"로코코":{c:0,t:0},"사실주의":{c:0,t:0},"인상주의":{c:0,t:0}};
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startGame(){
+  currentQ=0;score=0;combo=0;
+  eraScores={"르네상스":{c:0,t:0},"바로크":{c:0,t:0},"로코코":{c:0,t:0},"사실주의":{c:0,t:0},"인상주의":{c:0,t:0}};
+  showScreen('quiz-screen');
+  loadQuestion();
+}
+
+function loadQuestion(){
+  answered=false;
+  const q=QUESTIONS[currentQ];
+  document.getElementById('progress-bar').style.width=((currentQ/QUESTIONS.length)*100)+'%';
+  document.getElementById('score-live').textContent=score+'점';
+  document.getElementById('era-badge').textContent=q.era;
+  document.getElementById('q-counter').textContent=(currentQ+1)+' / '+QUESTIONS.length;
+  document.getElementById('q-type').textContent='사지선다형';
+  document.getElementById('q-text').textContent=q.q;
+
+  const cb=document.getElementById('combo-badge');
+  if(combo>=3){cb.textContent='🔥 '+combo+'연속 정답!';cb.className='combo-badge hot';cb.style.display='inline-block';}
+  else if(combo>=2){cb.textContent=combo+'연속 정답';cb.className='combo-badge';cb.style.display='inline-block';}
+  else{cb.style.display='none';}
+
+  const choicesEl=document.getElementById('choices');
+  choicesEl.innerHTML='';
+  q.choices.forEach((c,i)=>{
+    const btn=document.createElement('button');
+    btn.className='choice-btn';
+    btn.textContent=c;
+    btn.onclick=()=>selectAnswer(i);
+    choicesEl.appendChild(btn);
+  });
+
+  const fb=document.getElementById('feedback-box');
+  fb.className='feedback-box';
+  fb.style.display='none';
+  document.getElementById('btn-next').className='btn-next';
+  eraScores[q.era].t++;
+}
+
+function selectAnswer(idx){
+  if(answered)return;
+  answered=true;
+  const q=QUESTIONS[currentQ];
+  const btns=document.querySelectorAll('.choice-btn');
+  btns.forEach(b=>b.disabled=true);
+
+  const fb=document.getElementById('feedback-box');
+  fb.style.display='block';
+
+  if(idx===q.ans){
+    btns[idx].classList.add('correct');
+    const pts=combo>=2?150:100;
+    score+=pts;combo++;
+    eraScores[q.era].c++;
+    fb.className='feedback-box show ok';
+    document.getElementById('feedback-title').textContent='정답! +'+pts+'점';
+    document.getElementById('feedback-text').textContent=q.exp;
+  } else {
+    btns[idx].classList.add('wrong');
+    btns[q.ans].classList.add('reveal-correct');
+    combo=0;
+    fb.className='feedback-box show bad';
+    document.getElementById('feedback-title').textContent='틀렸어요. 정답은 "'+q.choices[q.ans]+'"';
+    document.getElementById('feedback-text').textContent=q.exp;
+  }
+  document.getElementById('score-live').textContent=score+'점';
+  document.getElementById('btn-next').className='btn-next show';
+  if(combo>=3){const cb=document.getElementById('combo-badge');cb.textContent='🔥 '+combo+'연속 정답!';cb.className='combo-badge hot';cb.style.display='inline-block';}
+}
+
+function nextQuestion(){
+  currentQ++;
+  if(currentQ>=QUESTIONS.length){showResult();return;}
+  loadQuestion();
+}
+
+function showResult(){
+  showScreen('result-screen');
+  const correct=Object.values(eraScores).reduce((a,v)=>a+v.c,0);
+  document.getElementById('result-score').textContent=score+'점';
+  document.getElementById('result-correct').textContent=correct;
+
+  let emoji='🎨',msg='';
+  const pct=correct/QUESTIONS.length;
+  if(pct>=0.9){emoji='🏆';msg='훌륭해요! 미술관 큐레이터 자격이 충분합니다. 서양 미술사를 완벽하게 이해하고 있어요!';}
+  else if(pct>=0.7){emoji='🌟';msg='잘했어요! 서양 미술의 흐름을 잘 파악하고 있네요. 조금만 더 공부하면 전문가가 될 것 같아요!';}
+  else if(pct>=0.5){emoji='🎭';msg='좋은 시작이에요! 틀린 문제를 복습하면서 각 시대의 특징을 다시 정리해 보세요.';}
+  else{emoji='🖌️';msg='괜찮아요! 처음에는 누구나 어렵습니다. 각 시대별 핵심 화가와 특징을 정리하고 다시 도전해 보세요!';}
+
+  document.getElementById('result-emoji').textContent=emoji;
+  document.getElementById('result-message').textContent=msg;
+
+  const eraEl=document.getElementById('era-results');
+  eraEl.innerHTML='';
+  ['르네상스','바로크','로코코','사실주의','인상주의'].forEach(era=>{
+    const d=eraScores[era];
+    const p=d.t>0?Math.round((d.c/d.t)*100):0;
+    eraEl.innerHTML+=`<div class="era-result-row">
+      <span class="era-result-name">${era}</span>
+      <div class="era-result-bar-wrap"><div class="era-result-bar" style="width:${p}%"></div></div>
+      <span class="era-result-frac">${d.c}/${d.t}</span>
+    </div>`;
+  });
+}
+</script>
+</body>
+</html>
